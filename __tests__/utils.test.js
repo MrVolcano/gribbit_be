@@ -1,6 +1,5 @@
-const {
-  convertTimestampToDate
-} = require("../db/seeds/utils");
+const { convertTimestampToDate } = require("../db/seeds/utils");
+const { commentData } = require("../db/data/test-data/comments");
 
 describe("convertTimestampToDate", () => {
   test("returns a new object", () => {
@@ -37,4 +36,3 @@ describe("convertTimestampToDate", () => {
     expect(result).toEqual(expected);
   });
 });
-

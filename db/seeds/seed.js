@@ -6,6 +6,7 @@ const {
   articleData,
   commentData,
 } = require("../data/test-data");
+
 const { convertTimestampToDate } = require("./utils");
 const articles = require("../data/test-data/articles");
 // const topicData = require("../data/test-data/topics");
@@ -45,8 +46,8 @@ function seed({ topicData, userData, articleData, commentData }) {
     .then(() => {
       return seedArticlesData();
     })
-    .then(() => {
-      return seedCommentsData();
+    .then((articlesData) => {
+      return seedCommentsData(articlesData);
     });
 
   // dropTables();
@@ -179,63 +180,51 @@ function seedArticlesData() {
   const insertArticleData = format(
     `INSERT INTO articles (title, topic, author, body, created_at, votes, article_img_url)
     VALUES
-    %L`,
+    %L
+    RETURNING title, article_id`,
     formattedArticleData
   );
 
   return db.query(insertArticleData);
 }
 
-function seedCommentsData() {
-  return (
-    db
+function seedCommentsData(articlesData) {
+  const articleIdMap = new Map(
+    articlesData.rows.map((article) => [article.title, article.article_id])
+  );
 
-      // query the articles table to build a Map of titles and id's
-      .query("SELECT article_id, title FROM articles")
-      .then((articlesResult) => {
-        const articleIdMap = new Map(
-          articlesResult.rows.map((article) => [
-            article.title,
-            article.article_id,
-          ])
-        );
+  // process the data with convertTimestampToDate function to correctly format timestamp data
+  const formattedCommentsTimestamps = commentData.map((comment) => {
+    return convertTimestampToDate(comment);
+  });
 
-        // process the data with convertTimestampToDate function to correctly format timestamp data
-        const formattedCommentsTimestamps = commentData.map((comment) => {
-          return convertTimestampToDate(comment);
-        });
+  //
+  const formattedCommentsData = formattedCommentsTimestamps.map((comment) => {
+    // lookup the current article_title and get correspnding article_id
+    const articleId = articleIdMap.get(comment.article_title);
+    if (!articleId) {
+      throw new Error(
+        `No article_id found for title: ${comment.article_title}`
+      );
+    }
+    // store the fields in an array
+    return [
+      articleId,
+      comment.body,
+      comment.votes,
+      comment.author,
+      comment.created_at,
+    ];
+  });
 
-        //
-        const formattedCommentsData = formattedCommentsTimestamps.map(
-          (comment) => {
-            // lookup the current article_title and get correspnding article_id
-            const articleId = articleIdMap.get(comment.article_title);
-            if (!articleId) {
-              throw new Error(
-                `No article_id found for title: ${comment.article_title}`
-              );
-            }
-            // store the fields in an array
-            return [
-              articleId,
-              comment.body,
-              comment.votes,
-              comment.author,
-              comment.created_at,
-            ];
-          }
-        );
-
-        // construct the SQL INSERT query
-        const insertCommentData = format(
-          `INSERT INTO comments (article_id, body, votes, author, created_at)
+  // construct the SQL INSERT query
+  const insertCommentData = format(
+    `INSERT INTO comments (article_id, body, votes, author, created_at)
       VALUES
       %L;`,
-          formattedCommentsData
-        );
-
-        return db.query(insertCommentData);
-      })
+    formattedCommentsData
   );
+
+  return db.query(insertCommentData);
 }
 module.exports = seed;
