@@ -1,19 +1,8 @@
 const db = require("../connection");
 const format = require("pg-format");
-const {
-  topicData,
-  userData,
-  articleData,
-  commentData,
-} = require("../data/test-data");
-
 const { convertTimestampToDate } = require("./utils");
-const articles = require("../data/test-data/articles");
-// const topicData = require("../data/test-data/topics");
-// const userData = require("../data/test-data/users");
 
 function seed({ topicData, userData, articleData, commentData }) {
-  // return db.query(); //<< write your first query in here.
   return db
     .query(`DROP TABLE IF EXISTS comments;`)
     .then(() => {
@@ -38,20 +27,17 @@ function seed({ topicData, userData, articleData, commentData }) {
       return createTableComments();
     })
     .then(() => {
-      return seedTopicsData();
+      return seedTopicsData(topicData);
     })
     .then(() => {
-      return seedUsersData();
+      return seedUsersData(userData);
     })
     .then(() => {
-      return seedArticlesData();
+      return seedArticlesData(articleData);
     })
-    .then((articlesData) => {
-      return seedCommentsData(articlesData);
+    .then((articlesInsertResults) => {
+      return seedCommentsData(commentData, articlesInsertResults);
     });
-
-  // dropTables();
-  // createTableTopics();
 }
 
 function createTableTopics() {
@@ -127,7 +113,7 @@ function createTableComments() {
   );
 }
 
-function seedTopicsData() {
+function seedTopicsData(topicData) {
   // convert data from json to a nested array
   const formattedTopicsData = topicData.map((topic) => {
     return [topic.slug, topic.description, topic.img_url];
@@ -145,7 +131,7 @@ function seedTopicsData() {
   return db.query(insertTopicsData);
 }
 
-function seedUsersData() {
+function seedUsersData(userData) {
   const formattedUsersData = userData.map((user) => {
     return [user.username, user.name, user.avatar_url];
   });
@@ -160,7 +146,7 @@ function seedUsersData() {
   return db.query(insertUsersData);
 }
 
-function seedArticlesData() {
+function seedArticlesData(articleData) {
   const formattedArticleTimestamps = articleData.map((article) => {
     return convertTimestampToDate(article);
   });
@@ -188,9 +174,12 @@ function seedArticlesData() {
   return db.query(insertArticleData);
 }
 
-function seedCommentsData(articlesData) {
+function seedCommentsData(commentData, articlesInsertResults) {
   const articleIdMap = new Map(
-    articlesData.rows.map((article) => [article.title, article.article_id])
+    articlesInsertResults.rows.map((article) => [
+      article.title,
+      article.article_id,
+    ])
   );
 
   // process the data with convertTimestampToDate function to correctly format timestamp data
