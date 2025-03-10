@@ -11,4 +11,18 @@ function convertTimestampToDate({ created_at, ...otherProperties }) {
   return { created_at: new Date(created_at), ...otherProperties };
 }
 
-module.exports = { convertTimestampToDate };
+function logRequestDetails(request) {
+  const method = request.method; // HTTP method (e.g., GET, POST)
+  const url = request.originalUrl; // Full URL
+  const params = request.params; // URL parameters
+
+  // Create a formatted message
+  const message = `received: ${method} ${url}`;
+
+  // Log the message to the console
+  console.log(message);
+
+  return message; // Return the message if needed
+}
+
+module.exports = { convertTimestampToDate, logRequestDetails };
