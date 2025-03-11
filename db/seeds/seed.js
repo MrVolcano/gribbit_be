@@ -102,14 +102,15 @@ function createTableComments() {
   // created_at defaults to the current timestamp
   return db.query(
     `CREATE TABLE comments (
-    comment_id SERIAL PRIMARY KEY,
-    article_id INT,
-    body TEXT,
-    votes INT DEFAULT 0,
-    author VARCHAR(15),
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (article_id) REFERENCES articles(article_id),
-    FOREIGN KEY (author) REFERENCES users(username));`
+      comment_id SERIAL PRIMARY KEY,
+      article_id INT,
+      body TEXT,
+      votes INT DEFAULT 0,
+      author VARCHAR(15),
+      created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+      FOREIGN KEY (article_id) REFERENCES articles(article_id) ON DELETE CASCADE,
+      FOREIGN KEY (author) REFERENCES users(username) ON DELETE CASCADE
+    );`
   );
 }
 

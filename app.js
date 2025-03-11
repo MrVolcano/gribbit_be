@@ -1,7 +1,7 @@
 const express = require("express");
 const app = express();
 // const endpoints = require("./endpoints.json");
-const { getApis, getTopics } = require("./controllers/api");
+const { getApis, getTopics, getAllArticles } = require("./controllers/api");
 const { getArticleByID } = require("./controllers/api");
 
 // Task 1: GET /api
@@ -16,8 +16,9 @@ app.get("/api/topics", getTopics);
 // returns an article object of given id
 app.get("/api/articles/:article_id", getArticleByID);
 
+// Task 4: GET /api/articles
+// returns an array of article objects
+app.get("/api/articles", getAllArticles);
 
-app.use((error, request, response, next) => {
-  console.log("app.js: ", error);
-});
+
 module.exports = app;

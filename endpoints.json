@@ -9,23 +9,6 @@
       "topics": [{ "slug": "football", "description": "Footie!" }]
     }
   },
-  "GET /api/articles": {
-    "description": "serves an array of all articles",
-    "queries": ["author", "topic", "sort_by", "order"],
-    "exampleResponse": {
-      "articles": [
-        {
-          "title": "Seafood substitutions are increasing",
-          "topic": "cooking",
-          "author": "weegembump",
-          "body": "Text from the article..",
-          "created_at": "2018-05-30T15:59:13.341Z",
-          "votes": 0,
-          "comment_count": 6
-        }
-      ]
-    }
-  },
   "GET /api/articles/:id": {
     "description": "serves the requested article as a single object",
     "exampleResponse": {
@@ -39,6 +22,33 @@
         "votes": 0,
         "article_img_url": "https://images.pexels.com/photos/158651/news-newsletter-newspaper-information-158651.jpeg?w=700&h=700"
       }
+    }
+  },
+  "GET /api/articles": {
+    "description": "serves all articles in an array of objects",
+    "exampleResponse": {
+      "articles": [
+        {
+          "article_id": 34,
+          "title": "The Notorious MSG’s Unlikely Formula For Success",
+          "topic": "cooking",
+          "author": "grumpy19",
+          "created_at": "2020-11-22T11:13:00.000Z",
+          "votes": 0,
+          "article_img_url": "https://images.pexels.com/photos/2403392/pexels-photo-2403392.jpeg?w=700&h=700",
+          "comment_count": "11"
+        },
+        {
+          "article_id": 12,
+          "title": "The battle for Node.js security has only begun",
+          "topic": "coding",
+          "author": "tickle122",
+          "created_at": "2020-11-15T13:25:00.000Z",
+          "votes": 0,
+          "article_img_url": "https://images.pexels.com/photos/10845119/pexels-photo-10845119.jpeg?w=700&h=700",
+          "comment_count": "7"
+        }
+      ]
     }
   }
 }
