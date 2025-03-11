@@ -1,3 +1,4 @@
 node_modules
 .env.*
 db/seeds/db-dump.txt
+db/queries

@@ -50,7 +50,6 @@ describe("GET /api/articles:article_id", () => {
       .expect(200)
       .then((response) => {
         const article = response.body.article;
-        // console.log("test repsonse:", response.body);
         expect(typeof article).toBe("object");
         expect(article.author).toBe("icellusedkars");
         expect(article.title).toBe("Eight pug gifs that remind me of mitch");
@@ -73,5 +72,40 @@ describe("GET /api/articles:article_id", () => {
         expect(error.message).toBe("No record found");
         expect(error.status).toBe(404);
       });
+  });
+});
+
+describe("GET /api/articles", () => {
+  test("200: responds with an array of article objects with the specified properties", () => {
+    return supertest(app)
+      .get("/api/articles")
+      .expect(200)
+      .then((response) => {
+        const articles = response.body.articles;
+        expect(articles.length).toBe(13); // there should be 13 articles
+        articles.forEach((article) => {
+          //  test for existence of required properties
+          expect(article).toHaveProperty("author");
+          expect(article).toHaveProperty("title");
+          expect(article).toHaveProperty("article_id");
+          expect(article).toHaveProperty("topic");
+          expect(article).toHaveProperty("created_at");
+          expect(article).toHaveProperty("votes");
+          expect(article).toHaveProperty("article_img_url");
+          expect(article).toHaveProperty("comment_count");
+        });
+      });
+  });
+  test("404: Responds with an error when no records are found", async () => {
+    // because db is populated, must first, delete all articles to generate error
+    await db.query(`DELETE FROM articles`);
+
+    // Then, make the request
+    const response = await supertest(app).get("/api/articles").expect(404);
+
+    // Check the response
+    const error = response.body;
+    expect(error.message).toBe("No record found");
+    expect(error.status).toBe(404);
   });
 });
