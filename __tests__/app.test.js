@@ -69,7 +69,7 @@ describe("GET /api/articles:article_id", () => {
       .expect(404)
       .then((response) => {
         const error = response.body;
-        expect(error.message).toBe("No record found");
+        expect(error.message).toBe("Not found");
         expect(error.status).toBe(404);
       });
   });
@@ -105,7 +105,37 @@ describe("GET /api/articles", () => {
 
     // Check the response
     const error = response.body;
-    expect(error.message).toBe("No record found");
+    expect(error.message).toBe("Not found");
     expect(error.status).toBe(404);
+  });
+});
+
+describe("GET /api/articles/:article_id/comments", () => {
+  test("200: Responds with an array of comments for a given article", () => {
+    return supertest(app)
+      .get("/api/articles/1/comments")
+      .expect(200)
+      .then((response) => {
+        const { comments } = response.body;
+        expect(comments.length).toBe(11);
+        comments.forEach((comment) => {
+          expect(comment.article_id).toBe(1);
+          expect(comment).toHaveProperty("comment_id");
+          expect(comment).toHaveProperty("votes");
+          expect(comment).toHaveProperty("created_at");
+          expect(comment).toHaveProperty("author");
+          expect(comment).toHaveProperty("body");
+        });
+      });
+  });
+  test("400: Responds with 'bad request' when passed an invalid articleID", () => {
+    return supertest(app)
+      .get("/api/articles/dog/comments")
+      .expect(400)
+      .then((response) => {
+        const body = response.body;
+        expect(body.status).toBe(400);
+        expect(body.message).toBe("Invalid article ID: It must be an integer");
+      });
   });
 });
