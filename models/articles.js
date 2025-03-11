@@ -25,4 +25,19 @@ ORDER BY
     a.created_at DESC;`);
 }
 
-module.exports = { selectArticleByID, selectAllArticles };
+function selectCommentsByArticleID(article_id) {
+  return db
+    .query(
+      `select * from comments WHERE article_id = $1 ORDER BY created_at DESC;`,
+      [article_id]
+    )
+    .then((result) => {
+      return { comments: result.rows };
+    });
+}
+
+module.exports = {
+  selectArticleByID,
+  selectAllArticles,
+  selectCommentsByArticleID,
+};

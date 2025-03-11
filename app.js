@@ -1,8 +1,18 @@
 const express = require("express");
 const app = express();
 // const endpoints = require("./endpoints.json");
-const { getApis, getTopics, getAllArticles } = require("./controllers/api");
+const {
+  getApis,
+  getTopics,
+  getAllArticles,
+  getCommentsByArticleID,
+} = require("./controllers/api");
 const { getArticleByID } = require("./controllers/api");
+const {
+  handle404,
+  handleErrors,
+  handleNotFoundError,
+} = require("./controllers/errorhandlers");
 
 // Task 1: GET /api
 // returns all other available endpoints
@@ -20,5 +30,14 @@ app.get("/api/articles/:article_id", getArticleByID);
 // returns an array of article objects
 app.get("/api/articles", getAllArticles);
 
+// Task 5: GET /api/articles/1/comments
+// returns an array of comments for a given article
+app.get("/api/articles/:article_id/comments", getCommentsByArticleID);
+
+// Catch-all for 404 errors
+app.use(handle404); // Use the 404 handler
+
+// Error handling middleware
+app.use(handleErrors); // Use the error handler
 
 module.exports = app;
