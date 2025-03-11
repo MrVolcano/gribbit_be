@@ -11,7 +11,6 @@ const { getArticleByID } = require("./controllers/api");
 const {
   handle404,
   handleErrors,
-  handleNotFoundError,
 } = require("./controllers/errorhandlers");
 
 // Task 1: GET /api

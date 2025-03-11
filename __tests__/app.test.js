@@ -138,4 +138,14 @@ describe("GET /api/articles/:article_id/comments", () => {
         expect(body.message).toBe("Invalid article ID: It must be an integer");
       });
   });
+  test("404: Responds with an error when no records are found", () => {
+    return supertest(app)
+      .get("/api/articles/9999/comments")
+      .expect(404)
+      .then((response) => {
+        const body = response.body;
+        expect(body.status).toBe(404);
+        expect(body.message).toBe("Not found");
+      });
+  });
 });

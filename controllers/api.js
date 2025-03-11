@@ -5,8 +5,6 @@ const {
   selectAllArticles,
   selectCommentsByArticleID,
 } = require("../models/articles");
-const { handleNotFoundError } = require("./errorhandlers");
-const { logRequestDetails } = require("../db/seeds/utils");
 const { handle404 } = require("./errorhandlers");
 
 function getApis(request, response) {
@@ -54,12 +52,11 @@ function getCommentsByArticleID(request, response, next) {
   }
 
   selectCommentsByArticleID(article_id)
-    .then((comments) => {
+    .then(({ comments }) => {
       if (comments.length === 0) {
-        // return handleNotFoundError(response, "No record found");
         return handle404(request, response, next);
       }
-      response.status(200).send(comments);
+      response.status(200).send({ comments });
     })
     .catch((error) => {
       next(error);
