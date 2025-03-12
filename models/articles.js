@@ -28,7 +28,7 @@ ORDER BY
 function selectCommentsByArticleID(article_id) {
   return db
     .query(
-      `select * from comments WHERE article_id = $1 ORDER BY created_at DESC;`,
+      `SELECT * FROM comments WHERE article_id = $1 ORDER BY created_at DESC;`,
       [article_id]
     )
     .then((result) => {
@@ -36,8 +36,30 @@ function selectCommentsByArticleID(article_id) {
     });
 }
 
+function insertComment(article_id, author, body) {
+  console.log("insertComment invoked");
+  // This works:- (date created automatically, user must exist (case-sen))
+  // 'INSERT INTO comments (article_id, author, body) VALUES (1, 'Grumpy19' , 'comment text')
+  return db
+    .query(
+      `INSERT INTO comments (article_id, author, body) VALUES ($1, $2, $3) RETURNING *;`,
+      [article_id, author, body]
+    )
+
+    .then((result) => {
+      console.log("insertComment: ", result.rows[0]);
+      return result.rows[0];
+    })
+    .catch((error) => {
+      console.log("error detected");
+      console.log("error inserting comment:", error);
+      throw error;
+    });
+}
+
 module.exports = {
   selectArticleByID,
   selectAllArticles,
   selectCommentsByArticleID,
+  insertComment,
 };

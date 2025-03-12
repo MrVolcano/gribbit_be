@@ -8,6 +8,8 @@ function handle404(request, response, next) {
 
 function handleErrors(error, request, response, next) {
   const status = error.status || 500; // Default to 500 if no status is provided
+  console.log("handleErrors: ", error);
+  console.log("handleErrors: ", error.detail);
   response.status(status).send({ status: status, message: error.message });
 }
 

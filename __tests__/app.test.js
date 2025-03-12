@@ -149,3 +149,28 @@ describe("GET /api/articles/:article_id/comments", () => {
       });
   });
 });
+
+describe("POST /api/articles/:article_id/comments", () => {
+  test("201: Adds a comment to the specified article_id", () => {
+    return supertest(app)
+      .post("/api/articles/1/comments")
+      .send({ username: "rogersop", body: "my first comment" })
+      .expect(201)
+      .then((response) => {
+        const body = response.body
+        console.log("test: ", body);
+        expect(body).toHaveProperty("comment_id");
+        expect(body).toHaveProperty("created_at");
+        expect(body.article_id).toBe(1);
+        expect(body.body).toBe("my first comment");
+        expect(body.author).toBe("rogersop");
+        expect(body.votes).toBe(0);
+      });
+  });
+  test.todo("article_id doesn't exist");
+  test.todo("user_id doesn't exist (case sensitive");
+  test.todo("body invalid/too long/empty");
+  test.todo("missing body");
+  test.todo("missing user_id");
+  test.todo("using GET method instead of POST");
+});
