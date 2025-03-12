@@ -82,7 +82,7 @@ describe("GET /api/articles", () => {
       .expect(200)
       .then((response) => {
         const articles = response.body.articles;
-        expect(articles.length).toBe(13); // there should be 13 articles
+        expect(articles.length).toBe(13);
         articles.forEach((article) => {
           //  test for existence of required properties
           expect(article).toHaveProperty("author");
@@ -158,7 +158,6 @@ describe("POST /api/articles/:article_id/comments", () => {
       .expect(201)
       .then((response) => {
         const body = response.body;
-        console.log("test: ", body);
         expect(body).toHaveProperty("comment_id");
         expect(body).toHaveProperty("created_at");
         expect(body.article_id).toBe(1);
@@ -167,7 +166,51 @@ describe("POST /api/articles/:article_id/comments", () => {
         expect(body.votes).toBe(0);
       });
   });
-  test("404: article_id doesn't exist", () => {
+  test("400: responds with bad request when no username given", () => {
+    return supertest(app)
+      .post("/api/articles/1/comments")
+      .send({ body: "my first comment" })
+      .expect(400)
+      .then((response) => {
+        const body = response.body;
+        expect(body.status).toBe(400);
+        expect(body.message).toBe("Bad request");
+      });
+  });
+  test("400: responds with bad request when no comment provided", () => {
+    return supertest(app)
+      .post("/api/articles/1/comments")
+      .send({ username: "rogersop" })
+      .expect(400)
+      .then((response) => {
+        const body = response.body;
+        expect(body.status).toBe(400);
+        expect(body.message).toBe("Bad request");
+      });
+  });
+  test("400: responds with bad request when empty object submitted", () => {
+    return supertest(app)
+      .post("/api/articles/1/comments")
+      .send({})
+      .expect(400)
+      .then((response) => {
+        const body = response.body;
+        expect(body.status).toBe(400);
+        expect(body.message).toBe("Bad request");
+      });
+  });
+  test("400: responds with bad request when username too long", () => {
+    return supertest(app)
+      .post("/api/articles/1/comments")
+      .send({ username: "dobbydobbydobbydobby", body: "mt first comment" })
+      .expect(400)
+      .then((response) => {
+        const body = response.body;
+        expect(body.status).toBe(400);
+        expect(body.message).toBe("Bad request");
+      });
+  });
+  test("404: responds with Not found when article_id doesn't exist", () => {
     return supertest(app)
       .post("/api/articles/9999/comments")
       .send({ username: "rogersop", body: "my first comment" })
@@ -178,9 +221,15 @@ describe("POST /api/articles/:article_id/comments", () => {
         expect(body.message).toBe("Not found");
       });
   });
-  test.todo("user_id doesn't exist (case sensitive");
-  test.todo("body invalid/too long/empty");
-  test.todo("missing body");
-  test.todo("missing user_id");
-  test.todo("using GET method instead of POST");
+  test("404: responds with Not found when user_id doesn't exist", () => {
+    return supertest(app)
+      .post("/api/articles/1/comments")
+      .send({ username: "dobbin", body: "my first comment" })
+      .expect(404)
+      .then((response) => {
+        const body = response.body;
+        expect(body.status).toBe(404);
+        expect(body.message).toBe("Not found");
+      });
+  });
 });

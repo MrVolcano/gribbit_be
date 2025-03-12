@@ -12,7 +12,7 @@ const { getArticleByID } = require("./controllers/api");
 const {
   handle404,
   handleErrors,
-  handleDatabaseErrors,
+  handleDatabaseErrors: handleDBErrors,
   handleDefaultErrors,
 } = require("./controllers/errorhandlers");
 
@@ -47,7 +47,7 @@ app.post("/api/articles/:article_id/comments", postComment);
 app.use(handle404); // Use the 404 handler
 
 // Error handling middleware
-app.use(handleDatabaseErrors);
+app.use(handleDBErrors);
 app.use(handleDefaultErrors);
 
 module.exports = app;

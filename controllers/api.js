@@ -23,7 +23,6 @@ function getArticleByID(request, response, next) {
   selectArticleByID(article_id).then(({ rows }) => {
     // handle error if no results are returned by the query
     if (rows.length === 0) {
-      // return handleNotFoundError(response, "No record found");
       return handle404(request, response, next);
     }
     // otherwise return results
@@ -35,7 +34,6 @@ function getAllArticles(request, response, next) {
   // select all articles
   selectAllArticles().then(({ rows }) => {
     if (rows.length === 0) {
-      // return handleNotFoundError(response, "No record found");
       return handle404(request, response, next);
     }
     response.status(200).send({ articles: rows });
@@ -65,25 +63,34 @@ function getCommentsByArticleID(request, response, next) {
 }
 
 function postComment(request, response, next) {
-  // validate article_id
-  // validate user_id
+  // validate article_id & username
   const { article_id } = request.params;
-  const { username, body } = request.body;
-  console.log("username: ", username);
-  console.log("comment: ", body);
-  console.log("postComment article_id:", article_id);
+  const { body } = request.body;
+  const username = request.body.username?.toLowerCase();
+
+  // check required parameters are present
+  if (!username || !body || !article_id) {
+    const error = new Error("Bad request");
+    error.status = 400;
+    error.detail = "Missing required paramaters";
+    throw error;
+  }
+
+  if (username.length > 15) {
+    const error = new Error("Bad request");
+    error.status = 400;
+    error.detail = "username too long";
+    throw error;
+  }
+
   insertComment(article_id, username, body)
     .then((dbResponse) => {
-      console.log("db response: ", dbResponse);
       response.status(201).send(dbResponse);
     })
     .catch((error) => {
-      console.log("postCOmment: ", error);
-      // response.status(404).send(error);
       next(error);
     });
 }
-
 
 module.exports = {
   getApis,

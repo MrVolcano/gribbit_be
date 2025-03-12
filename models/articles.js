@@ -37,9 +37,6 @@ function selectCommentsByArticleID(article_id) {
 }
 
 function insertComment(article_id, author, body) {
-  console.log("insertComment invoked");
-  // This works:- (date created automatically, user must exist (case-sen))
-  // 'INSERT INTO comments (article_id, author, body) VALUES (1, 'Grumpy19' , 'comment text')
   return db
     .query(
       `INSERT INTO comments (article_id, author, body) VALUES ($1, $2, $3) RETURNING *;`,
@@ -47,12 +44,9 @@ function insertComment(article_id, author, body) {
     )
 
     .then((result) => {
-      console.log("insertComment: ", result.rows[0]);
       return result.rows[0];
     })
     .catch((error) => {
-      console.log("error detected");
-      console.log("error:", error);
       throw error;
     });
 }
