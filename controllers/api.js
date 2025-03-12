@@ -5,6 +5,7 @@ const {
   selectAllArticles,
   selectCommentsByArticleID,
   insertComment,
+  updateVotes,
 } = require("../models/articles");
 const { handle404 } = require("./errorhandlers");
 
@@ -92,6 +93,23 @@ function postComment(request, response, next) {
     });
 }
 
+function patchArticle(request, response, next) {
+  const { article_id } = request.params;
+  const votes = request.body.inc_votes;
+
+  console.log("articleID: ", article_id);
+  console.log("votes: ", votes);
+
+  updateVotes(article_id, votes)
+    .then((dbResponse) => {
+      console.log("returned from db :", dbResponse);
+      response.status(200).send(dbResponse);
+    })
+    .catch((error) => {
+      next(error);
+    });
+}
+
 module.exports = {
   getApis,
   getTopics,
@@ -99,4 +117,5 @@ module.exports = {
   getAllArticles,
   getCommentsByArticleID,
   postComment,
+  patchArticle,
 };

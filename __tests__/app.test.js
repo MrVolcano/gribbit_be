@@ -233,3 +233,31 @@ describe("POST /api/articles/:article_id/comments", () => {
       });
   });
 });
+describe("PATCH /api/articles/:article_id", () => {
+  test("200: responds with an updated article object when {inc_votes} passed a positive value", () => {
+    return supertest(app)
+      .patch("/api/articles/2")
+      .send({ inc_votes: 10 })
+      .expect(200)
+      .then((response) => {
+        console.log(response.body);
+        const article = response.body;
+        expect(article.article_id).toBe(2);
+        expect(article.votes).toBe(10);
+        expect(article.title).toBe("Sony Vaio; or, The Laptop");
+        expect(article.author).toBe("icellusedkars");
+        expect(article.body).toBe("Call me Mitchell. Some years ago..");
+        expect(article.article_img_url).toBe(
+          "https://images.pexels.com/photos/158651/news-newsletter-newspaper-information-158651.jpeg?w=700&h=700"
+        );
+      });
+  });
+  test.todo("200: reduces vote count when passed a negative number");
+  test.todo(
+    "200: sets vote count to zero when given a negative number exceeding current votes"
+  );
+  test.todo("400: bad request when empty object is submitted");
+  test.todo("400: bad request when article_id is Nan");
+  test.todo("400: bad request when inc_votes is NaN");
+  test.todo("404: not found when passed article_id doesn't exist");
+});

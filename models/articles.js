@@ -51,9 +51,26 @@ function insertComment(article_id, author, body) {
     });
 }
 
+function updateVotes(article_id, votes) {
+  console.log("updatedVotes : ", article_id, votes);
+  return db
+    .query(
+      `UPDATE articles SET votes = votes+$2 WHERE article_id=$1 RETURNING *;`,
+      [article_id, votes]
+    )
+    .then((result) => {
+      console.log("db query: , ", result.rows[0]);
+      return result.rows[0];
+    })
+    .catch((error) => {
+      throw error;
+    });
+}
+
 module.exports = {
   selectArticleByID,
   selectAllArticles,
   selectCommentsByArticleID,
   insertComment,
+  updateVotes,
 };

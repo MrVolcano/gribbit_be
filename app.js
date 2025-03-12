@@ -7,6 +7,7 @@ const {
   getAllArticles,
   getCommentsByArticleID,
   postComment,
+  patchArticle,
 } = require("./controllers/api");
 const { getArticleByID } = require("./controllers/api");
 const {
@@ -43,10 +44,12 @@ app.get("/api/articles/:article_id/comments", getCommentsByArticleID);
 // adds a comment to the specified article_id
 app.post("/api/articles/:article_id/comments", postComment);
 
-// Catch-all for 404 errors
-app.use(handle404); // Use the 404 handler
+// Task 7: PATCH /api/articles/:article_id
+// increase/decrease votes for the specified article
+app.patch("/api/articles/:article_id", patchArticle);
 
 // Error handling middleware
+app.use(handle404);
 app.use(handleDBErrors);
 app.use(handleDefaultErrors);
 
