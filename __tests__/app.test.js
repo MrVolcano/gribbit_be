@@ -157,7 +157,7 @@ describe("POST /api/articles/:article_id/comments", () => {
       .send({ username: "rogersop", body: "my first comment" })
       .expect(201)
       .then((response) => {
-        const body = response.body
+        const body = response.body;
         console.log("test: ", body);
         expect(body).toHaveProperty("comment_id");
         expect(body).toHaveProperty("created_at");
@@ -167,7 +167,17 @@ describe("POST /api/articles/:article_id/comments", () => {
         expect(body.votes).toBe(0);
       });
   });
-  test.todo("article_id doesn't exist");
+  test("404: article_id doesn't exist", () => {
+    return supertest(app)
+      .post("/api/articles/9999/comments")
+      .send({ username: "rogersop", body: "my first comment" })
+      .expect(404)
+      .then((response) => {
+        const body = response.body;
+        expect(body.status).toBe(404);
+        expect(body.message).toBe("Not found");
+      });
+  });
   test.todo("user_id doesn't exist (case sensitive");
   test.todo("body invalid/too long/empty");
   test.todo("missing body");

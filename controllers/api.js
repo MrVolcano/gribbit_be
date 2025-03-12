@@ -7,7 +7,6 @@ const {
   insertComment,
 } = require("../models/articles");
 const { handle404 } = require("./errorhandlers");
-const { response } = require("../app");
 
 function getApis(request, response) {
   response.status(200).send({ endpoints: endpoints });
@@ -65,7 +64,7 @@ function getCommentsByArticleID(request, response, next) {
     });
 }
 
-function postComment(request, response) {
+function postComment(request, response, next) {
   // validate article_id
   // validate user_id
   const { article_id } = request.params;
@@ -73,11 +72,18 @@ function postComment(request, response) {
   console.log("username: ", username);
   console.log("comment: ", body);
   console.log("postComment article_id:", article_id);
-  insertComment(article_id, username, body).then((dbResponse) => {
-    console.log("db response: ", dbResponse);
-    response.status(201).send(dbResponse);
-  });
+  insertComment(article_id, username, body)
+    .then((dbResponse) => {
+      console.log("db response: ", dbResponse);
+      response.status(201).send(dbResponse);
+    })
+    .catch((error) => {
+      console.log("postCOmment: ", error);
+      // response.status(404).send(error);
+      next(error);
+    });
 }
+
 
 module.exports = {
   getApis,

@@ -9,7 +9,12 @@ const {
   postComment,
 } = require("./controllers/api");
 const { getArticleByID } = require("./controllers/api");
-const { handle404, handleErrors } = require("./controllers/errorhandlers");
+const {
+  handle404,
+  handleErrors,
+  handleDatabaseErrors,
+  handleDefaultErrors,
+} = require("./controllers/errorhandlers");
 
 // add body parsing middleware to handle JSON bodies
 app.use(express.json());
@@ -37,15 +42,12 @@ app.get("/api/articles/:article_id/comments", getCommentsByArticleID);
 // Task 6: POST /api/articles/:article_id/comments
 // adds a comment to the specified article_id
 app.post("/api/articles/:article_id/comments", postComment);
-// console.log("post recieved");
-// console.log(req.body);
-// res.status(201).send("Got a POST");
-// });
 
 // Catch-all for 404 errors
 app.use(handle404); // Use the 404 handler
 
 // Error handling middleware
-app.use(handleErrors); // Use the error handler
+app.use(handleDatabaseErrors);
+app.use(handleDefaultErrors);
 
 module.exports = app;

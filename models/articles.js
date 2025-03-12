@@ -52,7 +52,7 @@ function insertComment(article_id, author, body) {
     })
     .catch((error) => {
       console.log("error detected");
-      console.log("error inserting comment:", error);
+      console.log("error:", error);
       throw error;
     });
 }
