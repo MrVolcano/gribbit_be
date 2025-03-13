@@ -52,14 +52,18 @@ function insertComment(article_id, author, body) {
 }
 
 function updateVotes(article_id, votes) {
-  console.log("updatedVotes : ", article_id, votes);
   return db
     .query(
-      `UPDATE articles SET votes = votes+$2 WHERE article_id=$1 RETURNING *;`,
+      `UPDATE articles 
+     SET votes = CASE 
+                   WHEN votes + $2 < 0 THEN 0 
+                   ELSE votes + $2 
+                 END 
+     WHERE article_id = $1 
+     RETURNING *;`,
       [article_id, votes]
     )
     .then((result) => {
-      console.log("db query: , ", result.rows[0]);
       return result.rows[0];
     })
     .catch((error) => {

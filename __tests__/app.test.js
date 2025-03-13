@@ -1,9 +1,9 @@
 const endpointsJson = require("../endpoints.json");
 /* Set up your test imports here */
 const seed = require("../db/seeds/seed"); // db seeding function
+const data = require("../db/data/test-data/index"); // test seed data
 const db = require("../db/connection"); // db connection
 const supertest = require("supertest"); // supertest suite
-const data = require("../db/data/test-data/index"); // test seed data
 const app = require("../app");
 
 /* Set up your beforeEach & afterAll functions here */
@@ -135,7 +135,7 @@ describe("GET /api/articles/:article_id/comments", () => {
       .then((response) => {
         const body = response.body;
         expect(body.status).toBe(400);
-        expect(body.message).toBe("Invalid article ID: It must be an integer");
+        expect(body.message).toBe("Bad request");
       });
   });
   test("404: Responds with an error when no records are found", () => {
@@ -240,10 +240,10 @@ describe("PATCH /api/articles/:article_id", () => {
       .send({ inc_votes: 10 })
       .expect(200)
       .then((response) => {
-        console.log(response.body);
         const article = response.body;
         expect(article.article_id).toBe(2);
         expect(article.votes).toBe(10);
+        expect(article.topic).toBe("mitch");
         expect(article.title).toBe("Sony Vaio; or, The Laptop");
         expect(article.author).toBe("icellusedkars");
         expect(article.body).toBe("Call me Mitchell. Some years ago..");
@@ -252,12 +252,84 @@ describe("PATCH /api/articles/:article_id", () => {
         );
       });
   });
-  test.todo("200: reduces vote count when passed a negative number");
-  test.todo(
-    "200: sets vote count to zero when given a negative number exceeding current votes"
-  );
-  test.todo("400: bad request when empty object is submitted");
-  test.todo("400: bad request when article_id is Nan");
-  test.todo("400: bad request when inc_votes is NaN");
-  test.todo("404: not found when passed article_id doesn't exist");
+  test("200: reduces vote count when passed a negative number", () => {
+    return supertest(app)
+      .patch("/api/articles/1")
+      .send({ inc_votes: -25 })
+      .expect(200)
+      .then((response) => {
+        const article = response.body;
+        expect(article.article_id).toBe(1);
+        expect(article.votes).toBe(75);
+        expect(article.topic).toBe("mitch");
+        expect(article.title).toBe("Living in the shadow of a great man");
+        expect(article.author).toBe("butter_bridge");
+        expect(article.body).toBe("I find this existence challenging");
+        expect(article.article_img_url).toBe(
+          "https://images.pexels.com/photos/158651/news-newsletter-newspaper-information-158651.jpeg?w=700&h=700"
+        );
+      });
+  });
+  test("200: sets vote count to zero when given a negative number exceeding current votes", () => {
+    return supertest(app)
+      .patch("/api/articles/1")
+      .send({ inc_votes: -150 })
+      .expect(200)
+      .then((response) => {
+        const article = response.body;
+        expect(article.article_id).toBe(1);
+        expect(article.votes).toBe(0);
+        expect(article.topic).toBe("mitch");
+        expect(article.title).toBe("Living in the shadow of a great man");
+        expect(article.author).toBe("butter_bridge");
+        expect(article.body).toBe("I find this existence challenging");
+        expect(article.article_img_url).toBe(
+          "https://images.pexels.com/photos/158651/news-newsletter-newspaper-information-158651.jpeg?w=700&h=700"
+        );
+      });
+  });
+  test("400: bad request when empty object is submitted", () => {
+    return supertest(app)
+      .patch("/api/articles/1")
+      .send({})
+      .expect(400)
+      .then((response) => {
+        const body = response.body;
+        expect(body.status).toBe(400);
+        expect(body.message).toBe("Bad request");
+      });
+  });
+  test("400: bad request when article_id is Nan", () => {
+    return supertest(app)
+      .patch("/api/articles/article1")
+      .send({ inc_votes: 1 })
+      .expect(400)
+      .then((response) => {
+        const body = response.body;
+        expect(body.status).toBe(400);
+        expect(body.message).toBe("Bad request");
+      });
+  });
+  test("400: bad request when inc_votes is NaN", () => {
+    return supertest(app)
+      .patch("/api/articles/1")
+      .send({ inc_votes: "ten" })
+      .expect(400)
+      .then((response) => {
+        const body = response.body;
+        expect(body.status).toBe(400);
+        expect(body.message).toBe("Bad request");
+      });
+  });
+  test("404: not found when passed article_id doesn't exist", () => {
+    return supertest(app)
+      .patch("/api/articles/9999")
+      .send({ inc_votes: 1 })
+      .expect(404)
+      .then((response) => {
+        const body = response.body;
+        expect(body.status).toBe(404);
+        expect(body.message).toBe("Not found");
+      });
+  });
 });

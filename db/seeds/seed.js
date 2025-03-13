@@ -104,7 +104,7 @@ function createTableComments() {
     `CREATE TABLE comments (
       comment_id SERIAL PRIMARY KEY,
       article_id INT,
-      body TEXT,
+      body TEXT NOT NULL,
       votes INT DEFAULT 0,
       author VARCHAR(15) NOT NULL,
       created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
