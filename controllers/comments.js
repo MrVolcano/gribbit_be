@@ -7,18 +7,21 @@ function handleDeleteComment(request, response, next) {
   console.log("comment ID: ", commentID);
 
   // check comment exists
-  checkRecordExists(commentID, "comment_id", "comments").then(() => {
-    console.log(`comment ${commentID} exists1`);
-
-    // pass to model
-    deleteComment(commentID)
-      .then((result) => {
-        console.log(result);
-        response.status(204).end();
-        console.log("record deleted");
-      })
-      .catch(next);
-  });
+  checkRecordExists(commentID, "comment_id", "comments")
+    .then((commentExists) => {
+      if (commentExists) {
+        // pass to model
+        deleteComment(commentID).then((result) => {
+          response.status(204).end();
+        });
+      } else {
+        const error = new Error("Not found");
+        error.status = 404;
+        error.detail = "Comment not found";
+        throw error;
+      }
+    })
+    .catch(next);
 }
 
 module.exports = { handleDeleteComment };

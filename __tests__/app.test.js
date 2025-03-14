@@ -333,10 +333,32 @@ describe("PATCH /api/articles/:article_id", () => {
       });
   });
 });
-describe.only("DELETE /api/comments/:comment_id", () => {
+describe("DELETE /api/comments/:comment_id", () => {
   test("204: deletes the given comment and responds with no content", () => {
     return supertest(app).delete("/api/comments/1").expect(204);
   });
-  test.todo("404: comment not found");
-  test.todo("400: comment_id is invalid");
+  test("404: comment not found", () => {
+    return supertest(app)
+      .delete("/api/comments/9999")
+      .expect(404)
+      .then((response) => {
+        expect.objectContaining({
+          message: "Not found",
+          status: 404,
+          detail: "Comment not found",
+        });
+      });
+  });
+  test("400: comment_id is invalid", () => {
+    return supertest(app)
+      .delete("/api/comments/nine")
+      .expect(400)
+      .then((response) => {
+        expect.objectContaining({
+          status: 400,
+          message: "Bad request",
+          detail: 'invalid input syntax for type integer: "NaN"',
+        });
+      });
+  });
 });
