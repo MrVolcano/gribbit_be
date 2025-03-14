@@ -18,6 +18,7 @@ const {
   deleteComment,
   handleDeleteComment,
 } = require("./controllers/comments");
+const { getAllUsers } = require("./controllers/users");
 
 // add body parsing middleware to handle JSON bodies
 app.use(express.json());
@@ -53,6 +54,10 @@ app.patch("/api/articles/:article_id", patchArticle);
 // Task 8: DELETE /api/comments/:comment_id
 // delete the given comment by comment_id
 app.delete("/api/comments/:commentID", handleDeleteComment);
+
+// Task 9: GET /api/users
+// returns an array of user objects
+app.get("/api/users", getAllUsers);
 
 // Error handling middleware
 app.use(handleDBErrors); // Handle DB-specific errors first
