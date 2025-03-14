@@ -1,4 +1,5 @@
 const db = require("../db/connection");
+const comments = require("../db/data/test-data/comments");
 
 // trim()
 // currently unused function. I was going to use to validate input but decided FE should provide clean data.
@@ -11,8 +12,8 @@ function trim(value) {
 // initially intended to be a generic check for cases where we need to lookup and check if record exists before taking an action (author, article_id, user), but then realised better to create specific function say for article that handles other validation too. Currently not used.
 
 function checkRecordExists(value, column, table) {
-  const validColumns = ["article_id", "author"];
-  const validTables = ["articles", "comments", "users"];
+  const validColumns = ["article_id", "author", "comment_id"];
+  const validTables = ["articles", "users", "comments"];
 
   if (!validColumns.includes(column) || !validTables.includes(table)) {
     return Promise.reject(new Error("Invalid column or table name"));
@@ -31,7 +32,6 @@ function checkRecordExists(value, column, table) {
 }
 
 function checkArticleID(articleID) {
-
   if (typeof articleID !== "number" || isNaN(articleID)) {
     const error = new Error("Bad request");
     error.status = 400;

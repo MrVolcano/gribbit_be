@@ -234,7 +234,7 @@ describe("POST /api/articles/:article_id/comments", () => {
   });
 });
 describe("PATCH /api/articles/:article_id", () => {
-  test("200: responds with an updated article object when {inc_votes} passed a positive value", () => {
+  test("200: modifies vote count and responds with an updated article object when {inc_votes} passed a positive value", () => {
     return supertest(app)
       .patch("/api/articles/2")
       .send({ inc_votes: 10 })
@@ -330,6 +330,35 @@ describe("PATCH /api/articles/:article_id", () => {
         const body = response.body;
         expect(body.status).toBe(404);
         expect(body.message).toBe("Not found");
+      });
+  });
+});
+describe("DELETE /api/comments/:comment_id", () => {
+  test("204: deletes the given comment and responds with no content", () => {
+    return supertest(app).delete("/api/comments/1").expect(204);
+  });
+  test("404: comment not found", () => {
+    return supertest(app)
+      .delete("/api/comments/9999")
+      .expect(404)
+      .then((response) => {
+        expect.objectContaining({
+          message: "Not found",
+          status: 404,
+          detail: "Comment not found",
+        });
+      });
+  });
+  test("400: comment_id is invalid", () => {
+    return supertest(app)
+      .delete("/api/comments/nine")
+      .expect(400)
+      .then((response) => {
+        expect.objectContaining({
+          status: 400,
+          message: "Bad request",
+          detail: 'invalid input syntax for type integer: "NaN"',
+        });
       });
   });
 });
