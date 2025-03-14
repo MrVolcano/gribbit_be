@@ -362,3 +362,42 @@ describe("DELETE /api/comments/:comment_id", () => {
       });
   });
 });
+describe("GET /api/users", () => {
+  beforeEach(() => {
+    jest.restoreAllMocks(); // Reset mocks between tests
+  });
+  test("200: returns array of user objects", () => {
+    return supertest(app)
+      .get("/api/users")
+      .expect(200)
+      .then((response) => {
+        const { users } = response.body;
+        expect(users.length).toBe(4);
+        users.forEach((user) => {
+          expect(user).toEqual(
+            expect.objectContaining({
+              username: expect.any(String),
+              name: expect.any(String),
+              avatar_url: expect.stringContaining("http"),
+            })
+          );
+        });
+      });
+  });
+  test("404: responds with 'Not found' when no users are found", () => {
+    jest.spyOn(db, "query").mockResolvedValue({ rows: [] });
+
+    return supertest(app)
+      .get("/api/users")
+      .expect(404)
+      .then((response) => {
+        expect(response.body).toEqual(
+          expect.objectContaining({
+            message: "Not found",
+            status: 404,
+            detail: "No users found",
+          })
+        );
+      });
+  });
+});

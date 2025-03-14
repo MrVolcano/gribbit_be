@@ -4,7 +4,6 @@ const { checkRecordExists } = require("./helpers");
 function handleDeleteComment(request, response, next) {
   const commentID = Number(request.params.commentID);
 
-  console.log("comment ID: ", commentID);
 
   // check comment exists
   checkRecordExists(commentID, "comment_id", "comments")
