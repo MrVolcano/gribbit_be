@@ -7,6 +7,7 @@ const {
   insertComment,
   updateVotes,
 } = require("../models/articles");
+const { checkArticleID } = require("./helpers");
 
 function getApis(request, response) {
   response.status(200).send({ endpoints: endpoints });
@@ -19,10 +20,12 @@ function getTopics(request, response) {
 }
 
 function getArticleByID(request, response, next) {
-  const article_id = Number(request.params.article_id); // extract the article_id from the url
-  selectArticleByID(article_id)
-    .then(({ rows }) => {
-      response.status(200).send({ article: rows[0] });
+  const article_id = Number(request.params.article_id);
+  checkArticleID(article_id)
+    .then(() => {
+      selectArticleByID(article_id).then(({ rows }) => {
+        response.status(200).send({ article: rows[0] });
+      });
     })
     .catch(next);
 }
@@ -42,17 +45,18 @@ function getAllArticles(request, response, next) {
 }
 
 function getCommentsByArticleID(request, response, next) {
-  const { article_id } = request.params;
-
-  selectCommentsByArticleID(article_id)
-    .then(({ comments }) => {
-      response.status(200).send({ comments });
+  const article_id = Number(request.params.article_id);
+  checkArticleID(article_id)
+    .then(() => {
+      selectCommentsByArticleID(article_id).then(({ comments }) => {
+        response.status(200).send({ comments });
+      });
     })
     .catch(next);
 }
 
 function postComment(request, response, next) {
-  const { article_id } = request.params;
+  const article_id = Number(request.params.article_id);
   const { body } = request.body;
   const username = request.body.username?.toLowerCase();
 
@@ -66,21 +70,23 @@ function postComment(request, response, next) {
 }
 
 function patchArticle(request, response, next) {
-  const { article_id } = request.params;
+  const article_id = Number(request.params.article_id);
   const votes = request.body.inc_votes;
 
   //  if votes is missing, throw an error
-  if (!votes) {
+  if (!votes || typeof votes !== "number") {
     const error = new Error("Bad request");
     error.status = 400;
     error.detail = "Missing property 'inc_votes'";
     throw error;
   }
 
-  // if everything is OK, proceed with updating votes
-  updateVotes(article_id, votes)
-    .then((article) => {
-      response.status(200).send(article);
+  checkArticleID(article_id)
+    .then(() => {
+      // if everything is OK, proceed with updating votes
+      updateVotes(article_id, votes).then((article) => {
+        response.status(200).send(article);
+      });
     })
     .catch(next);
 }

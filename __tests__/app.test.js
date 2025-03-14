@@ -96,7 +96,7 @@ describe("GET /api/articles", () => {
         });
       });
   });
-  test("404: Responds with an error when no records are found", async () => {
+  test("404: Responds with an error when no articles are found", async () => {
     // because db is populated, must first, delete all articles to generate error
     await db.query(`DELETE FROM articles`);
 
@@ -138,7 +138,7 @@ describe("GET /api/articles/:article_id/comments", () => {
         expect(body.message).toBe("Bad request");
       });
   });
-  test("404: Responds with an error when no records are found", () => {
+  test("404: Responds with an error when no articles are found", () => {
     return supertest(app)
       .get("/api/articles/9999/comments")
       .expect(404)

@@ -31,6 +31,7 @@ function checkRecordExists(value, column, table) {
 }
 
 function checkArticleID(articleID) {
+
   if (typeof articleID !== "number" || isNaN(articleID)) {
     const error = new Error("Bad request");
     error.status = 400;
