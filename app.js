@@ -14,6 +14,10 @@ const {
   handleDBErrors,
   handleDefaultErrors,
 } = require("./controllers/errorhandlers");
+const {
+  deleteComment,
+  handleDeleteComment,
+} = require("./controllers/comments");
 
 // add body parsing middleware to handle JSON bodies
 app.use(express.json());
@@ -45,6 +49,10 @@ app.post("/api/articles/:article_id/comments", postComment);
 // Task 7: PATCH /api/articles/:article_id
 // increase/decrease votes for the specified article
 app.patch("/api/articles/:article_id", patchArticle);
+
+// Task 8: DELETE /api/comments/:comment_id
+// delete the given comment by comment_id
+app.delete("/api/comments/:commentID", handleDeleteComment);
 
 // Error handling middleware
 app.use(handleDBErrors); // Handle DB-specific errors first

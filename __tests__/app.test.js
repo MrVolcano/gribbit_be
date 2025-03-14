@@ -234,7 +234,7 @@ describe("POST /api/articles/:article_id/comments", () => {
   });
 });
 describe("PATCH /api/articles/:article_id", () => {
-  test("200: responds with an updated article object when {inc_votes} passed a positive value", () => {
+  test("200: modifies vote count and responds with an updated article object when {inc_votes} passed a positive value", () => {
     return supertest(app)
       .patch("/api/articles/2")
       .send({ inc_votes: 10 })
@@ -332,4 +332,11 @@ describe("PATCH /api/articles/:article_id", () => {
         expect(body.message).toBe("Not found");
       });
   });
+});
+describe.only("DELETE /api/comments/:comment_id", () => {
+  test("204: deletes the given comment and responds with no content", () => {
+    return supertest(app).delete("/api/comments/1").expect(204);
+  });
+  test.todo("404: comment not found");
+  test.todo("400: comment_id is invalid");
 });
