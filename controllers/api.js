@@ -5,8 +5,9 @@ const {
   selectAllArticles,
   selectCommentsByArticleID,
   insertComment,
+  updateVotes,
 } = require("../models/articles");
-const { handle404 } = require("./errorhandlers");
+const { checkArticleID } = require("./helpers");
 
 function getApis(request, response) {
   response.status(200).send({ endpoints: endpoints });
@@ -19,69 +20,45 @@ function getTopics(request, response) {
 }
 
 function getArticleByID(request, response, next) {
-  const { article_id } = request.params; // extract the article_id from the url
-  selectArticleByID(article_id).then(({ rows }) => {
-    // handle error if no results are returned by the query
-    if (rows.length === 0) {
-      return handle404(request, response, next);
-    }
-    // otherwise return results
-    response.status(200).send({ article: rows[0] });
-  });
+  const article_id = Number(request.params.article_id);
+  checkArticleID(article_id)
+    .then(() => {
+      selectArticleByID(article_id).then(({ rows }) => {
+        response.status(200).send({ article: rows[0] });
+      });
+    })
+    .catch(next);
 }
 
 function getAllArticles(request, response, next) {
-  // select all articles
-  selectAllArticles().then(({ rows }) => {
-    if (rows.length === 0) {
-      return handle404(request, response, next);
-    }
-    response.status(200).send({ articles: rows });
-  });
+  selectAllArticles()
+    .then(({ rows }) => {
+      if (rows.length === 0) {
+        const error = new Error("Not found");
+        error.status = 404;
+        error.detail = "No articles found";
+        throw error;
+      }
+      response.status(200).send({ articles: rows });
+    })
+    .catch(next);
 }
 
 function getCommentsByArticleID(request, response, next) {
-  const { article_id } = request.params;
-
-  // input validation
-  if (isNaN(article_id)) {
-    const error = new Error("Invalid article ID: It must be an integer");
-    error.status = 400;
-    return next(error);
-  }
-
-  selectCommentsByArticleID(article_id)
-    .then(({ comments }) => {
-      if (comments.length === 0) {
-        return handle404(request, response, next);
-      }
-      response.status(200).send({ comments });
+  const article_id = Number(request.params.article_id);
+  checkArticleID(article_id)
+    .then(() => {
+      selectCommentsByArticleID(article_id).then(({ comments }) => {
+        response.status(200).send({ comments });
+      });
     })
-    .catch((error) => {
-      next(error);
-    });
+    .catch(next);
 }
 
 function postComment(request, response, next) {
-  // validate article_id & username
-  const { article_id } = request.params;
+  const article_id = Number(request.params.article_id);
   const { body } = request.body;
   const username = request.body.username?.toLowerCase();
-
-  // check required parameters are present
-  if (!username || !body || !article_id) {
-    const error = new Error("Bad request");
-    error.status = 400;
-    error.detail = "Missing required paramaters";
-    throw error;
-  }
-
-  if (username.length > 15) {
-    const error = new Error("Bad request");
-    error.status = 400;
-    error.detail = "username too long";
-    throw error;
-  }
 
   insertComment(article_id, username, body)
     .then((dbResponse) => {
@@ -92,6 +69,28 @@ function postComment(request, response, next) {
     });
 }
 
+function patchArticle(request, response, next) {
+  const article_id = Number(request.params.article_id);
+  const votes = request.body.inc_votes;
+
+  //  if votes is missing, throw an error
+  if (!votes || typeof votes !== "number") {
+    const error = new Error("Bad request");
+    error.status = 400;
+    error.detail = "Missing property 'inc_votes'";
+    throw error;
+  }
+
+  checkArticleID(article_id)
+    .then(() => {
+      // if everything is OK, proceed with updating votes
+      updateVotes(article_id, votes).then((article) => {
+        response.status(200).send(article);
+      });
+    })
+    .catch(next);
+}
+
 module.exports = {
   getApis,
   getTopics,
@@ -99,4 +98,5 @@ module.exports = {
   getAllArticles,
   getCommentsByArticleID,
   postComment,
+  patchArticle,
 };

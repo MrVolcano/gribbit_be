@@ -1,18 +1,17 @@
 const express = require("express");
 const app = express();
-// const endpoints = require("./endpoints.json");
 const {
   getApis,
   getTopics,
   getAllArticles,
   getCommentsByArticleID,
   postComment,
+  patchArticle,
 } = require("./controllers/api");
 const { getArticleByID } = require("./controllers/api");
 const {
   handle404,
-  handleErrors,
-  handleDatabaseErrors: handleDBErrors,
+  handleDBErrors,
   handleDefaultErrors,
 } = require("./controllers/errorhandlers");
 
@@ -43,11 +42,13 @@ app.get("/api/articles/:article_id/comments", getCommentsByArticleID);
 // adds a comment to the specified article_id
 app.post("/api/articles/:article_id/comments", postComment);
 
-// Catch-all for 404 errors
-app.use(handle404); // Use the 404 handler
+// Task 7: PATCH /api/articles/:article_id
+// increase/decrease votes for the specified article
+app.patch("/api/articles/:article_id", patchArticle);
 
 // Error handling middleware
-app.use(handleDBErrors);
-app.use(handleDefaultErrors);
+app.use(handleDBErrors); // Handle DB-specific errors first
+app.use(handleDefaultErrors); // Handle custom errors (400, 404, etc.)
+app.use(handle404); // Catch any unhandled 404s (e.g., invalid routes)
 
 module.exports = app;
