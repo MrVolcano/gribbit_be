@@ -4,25 +4,71 @@ function selectArticleByID(articleID) {
   return db.query("SELECT * FROM articles WHERE article_id = $1;", [articleID]);
 }
 
-function selectAllArticles() {
-  return db.query(`
+// function selectAllArticles({ sort_by = "created_at", order = "DESC" } = {}) {
+function selectAllArticles(sort_by, order) {
+  if (sort_by === "" || sort_by === undefined || sort_by === null) {
+    sort_by = "created_at";
+  }
+  if (order === "" || order === undefined || order === null) {
+    order = "DESC";
+  }
+
+  // Whitelist valid columns to prevent SQL injection
+  const validColumns = [
+    "article_id",
+    "title",
+    "topic",
+    "author",
+    "created_at",
+    "votes",
+    "article_img_url",
+    "comment_count",
+  ];
+
+  // Validate sort_by
+  if (!validColumns.includes(sort_by)) {
+    return Promise.reject({
+      status: 400,
+      message: "Bad request",
+      detail: `Invalid sort column: '${sort_by}'. Valid columns are: ${validColumns.join(
+        ", "
+      )}.`,
+    });
+  }
+
+  // Validate order
+  const validOrders = ["ASC", "DESC"];
+  const normalisedOrder = order.toUpperCase(); // Normalize to uppercase
+  if (!validOrders.includes(normalisedOrder)) {
+    return Promise.reject({
+      status: 400,
+      message: "Bad request",
+      detail: `Invalid order value: '${order}'. Must be 'ASC' or 'DESC'.`,
+    });
+  }
+
+  // Build and execute the dynamic query
+  const queryText = `
     SELECT 
-    a.article_id,
-    a.title,
-    a.topic,
-    a.author,
-    a.created_at,
-    a.votes,
-    a.article_img_url,
-    COUNT(c.comment_id) AS comment_count
-FROM 
-    articles a
-LEFT JOIN 
-    comments c ON a.article_id = c.article_id
-GROUP BY 
-    a.article_id
-ORDER BY 
-    a.created_at DESC;`);
+      a.article_id,
+      a.title,
+      a.topic,
+      a.author,
+      a.created_at,
+      a.votes,
+      a.article_img_url,
+      COUNT(c.comment_id) AS comment_count
+    FROM 
+      articles a
+    LEFT JOIN 
+      comments c ON a.article_id = c.article_id
+    GROUP BY 
+      a.article_id
+    ORDER BY 
+      a.${sort_by} ${normalisedOrder};
+  `;
+
+  return db.query(queryText);
 }
 
 function selectCommentsByArticleID(article_id) {

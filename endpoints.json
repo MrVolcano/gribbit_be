@@ -25,7 +25,34 @@
     }
   },
   "GET /api/articles": {
-    "description": "serves all articles in an array of objects",
+    "description": "Serves an array of all articles, sorted by a specified column and order.",
+    "queries": {
+      "sort_by": {
+        "description": "Specifies the column to sort the articles by.",
+        "type": "string",
+        "default": "created_at",
+        "valid_values": [
+          "article_id",
+          "title",
+          "topic",
+          "author",
+          "created_at",
+          "votes",
+          "article_img_url",
+          "comment_count"
+        ],
+        "example": "?sort_by=title",
+        "notes": "Case-insensitive; invalid values return a 400 error."
+      },
+      "order": {
+        "description": "Specifies the sort direction.",
+        "type": "string",
+        "default": "desc",
+        "valid_values": ["asc", "desc"],
+        "example": "?order=asc",
+        "notes": "Case-insensitive; defaults to 'desc' if omitted or invalid."
+      }
+    },
     "exampleResponse": {
       "articles": [
         {
