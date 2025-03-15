@@ -96,6 +96,92 @@ describe("GET /api/articles", () => {
         });
       });
   });
+
+  test("200: sorts by created_at descending order by default", () => {
+    return supertest(app)
+      .get("/api/articles")
+      .expect(200)
+      .then((response) => {
+        const { articles } = response.body;
+        expect(articles).toBeSortedBy("created_at", { descending: true });
+      });
+  });
+  test("200: empty sort_by query (falls back to default)", () => {
+    return supertest(app)
+      .get("/api/articles?sort_by=")
+      .expect(200)
+      .then((response) => {
+        const { articles } = response.body;
+        expect(articles).toBeSortedBy("created_at", { descending: true });
+      });
+  });
+
+  test("200: empty order query (falls back to default)", () => {
+    return supertest(app)
+      .get("/api/articles?order=")
+      .expect(200)
+      .then((response) => {
+        const { articles } = response.body;
+        expect(articles).toBeSortedBy("created_at", { descending: true });
+      });
+  });
+
+  test("200: articles sort ascending when ?order=asc is given", () => {
+    return supertest(app)
+      .get("/api/articles?order=asc")
+      .expect(200)
+      .then((response) => {
+        const { articles } = response.body;
+        expect(articles).toBeSortedBy("created_at");
+      });
+  });
+  test("200: articles sort by a valid column (author) (default sort order)", () => {
+    return supertest(app)
+      .get("/api/articles?sort_by=author")
+      .expect(200)
+      .then((response) => {
+        const { articles } = response.body;
+        expect(articles).toBeSortedBy("author", { descending: true });
+      });
+  });
+  test("200: articles sort by a valid column (title) (ascending", () => {
+    return supertest(app)
+      .get("/api/articles?sort_by=title&order=asc")
+      .expect(200)
+      .then((response) => {
+        const { articles } = response.body;
+        expect(articles).toBeSortedBy("title");
+      });
+  });
+
+  test("400: bad request when passed an invalid sort_by column", () => {
+    return supertest(app)
+      .get("/api/articles?sort_by=invalid_column")
+      .expect(400)
+      .then((response) => {
+        const body = response.body;
+        expect(body.status).toBe(400);
+        expect(body.message).toBe("Bad request");
+        expect(body.detail).toBe(
+          "Invalid sort column: 'invalid_column'. Valid columns are: article_id, title, topic, author, created_at, votes, article_img_url, comment_count."
+        );
+      });
+  });
+
+  test("400: bad request when passed an invalid order value", () => {
+    return supertest(app)
+      .get("/api/articles?order=invalid_order")
+      .expect(400)
+      .then((response) => {
+        const body = response.body;
+        expect(body.status).toBe(400);
+        expect(body.message).toBe("Bad request");
+        expect(body.detail).toBe(
+          "Invalid order value: 'invalid_order'. Must be 'ASC' or 'DESC'."
+        );
+      });
+  });
+
   test("404: Responds with an error when no articles are found", async () => {
     // because db is populated, must first, delete all articles to generate error
     await db.query(`DELETE FROM articles`);
