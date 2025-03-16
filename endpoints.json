@@ -51,6 +51,13 @@
         "valid_values": ["asc", "desc"],
         "example": "?order=asc",
         "notes": "Case-insensitive; defaults to 'desc' if omitted or invalid."
+      },
+      "topic": {
+        "description": "filter by given topic.",
+        "type": "string",
+        "valid_values": "Any valid topic",
+        "example": "?topic=cats",
+        "notes": "Case-insensitive; invalid value return a 400 error."
       }
     },
     "exampleResponse": {
