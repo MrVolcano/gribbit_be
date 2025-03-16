@@ -31,9 +31,8 @@ function getArticleByID(request, response, next) {
 }
 
 function getAllArticles(request, response, next) {
-  const { sort_by, order } = request.query;
-
-  selectAllArticles(sort_by, order)
+  const { sort_by, order, topic } = request.query;
+  selectAllArticles(sort_by, order, topic)
     .then(({ rows }) => {
       if (rows.length === 0) {
         const error = new Error("Not found");

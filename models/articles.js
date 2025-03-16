@@ -5,7 +5,7 @@ function selectArticleByID(articleID) {
 }
 
 // function selectAllArticles({ sort_by = "created_at", order = "DESC" } = {}) {
-function selectAllArticles(sort_by, order) {
+function selectAllArticles(sort_by, order, topic) {
   if (sort_by === "" || sort_by === undefined || sort_by === null) {
     sort_by = "created_at";
   }
@@ -47,8 +47,17 @@ function selectAllArticles(sort_by, order) {
     });
   }
 
+  // Validate topic
+  if (topic === "") {
+    return Promise.reject({
+      status: 400,
+      message: "Bad request",
+      detail: "Topic query cannot be empty",
+    });
+  }
+
   // Build and execute the dynamic query
-  const queryText = `
+  let queryText = `
     SELECT 
       a.article_id,
       a.title,
@@ -62,13 +71,20 @@ function selectAllArticles(sort_by, order) {
       articles a
     LEFT JOIN 
       comments c ON a.article_id = c.article_id
+  `;
+
+  const queryParams = [];
+  if (topic) {
+    queryText += `  WHERE LOWER(a.topic) = LOWER($1)`;
+    queryParams.push(topic);
+  }
+  queryText += `
     GROUP BY 
       a.article_id
     ORDER BY 
-      a.${sort_by} ${normalisedOrder};
-  `;
+      a.${sort_by} ${normalisedOrder};`;
 
-  return db.query(queryText);
+  return db.query(queryText, queryParams);
 }
 
 function selectCommentsByArticleID(article_id) {
