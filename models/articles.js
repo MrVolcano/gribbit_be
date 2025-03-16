@@ -87,7 +87,9 @@ function selectAllArticles(sort_by, order, topic) {
     ORDER BY 
       a.${sort_by} ${normalisedOrder};`;
 
-  return db.query(queryText, queryParams);
+  return db.query(queryText, queryParams).then((result) => {
+    return result.rows;
+  });
 }
 
 function selectCommentsByArticleID(article_id) {

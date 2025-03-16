@@ -33,14 +33,14 @@ function getArticleByID(request, response, next) {
 function getAllArticles(request, response, next) {
   const { sort_by, order, topic } = request.query;
   selectAllArticles(sort_by, order, topic)
-    .then(({ rows }) => {
-      if (rows.length === 0) {
+    .then((articles) => {
+      if (articles.length === 0) {
         const error = new Error("Not found");
         error.status = 404;
         error.detail = "No articles found";
         throw error;
       }
-      response.status(200).send({ articles: rows });
+      response.status(200).send({ articles });
     })
     .catch(next);
 }

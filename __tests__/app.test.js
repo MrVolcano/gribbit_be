@@ -391,6 +391,17 @@ describe("POST /api/articles/:article_id/comments", () => {
         expect(body.message).toBe("Bad request");
       });
   });
+  test("400: responds with bad request when invalid article_id", () => {
+    return supertest(app)
+      .post("/api/articles/not_an_id/comments")
+      .send({ username: "rogersop", body: "mt first comment" })
+      .expect(400)
+      .then((response) => {
+        const body = response.body;
+        expect(body.status).toBe(400);
+        expect(body.message).toBe("Bad request");
+      });
+  });
   test("404: responds with Not found when article_id doesn't exist", () => {
     return supertest(app)
       .post("/api/articles/9999/comments")
