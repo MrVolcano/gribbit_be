@@ -122,7 +122,11 @@ function updateVotes(article_id, votes) {
                    ELSE votes + $2 
                  END 
      WHERE article_id = $1 
-     RETURNING *;`,
+     RETURNING *,
+        (SELECT COUNT(comment_id)::INTEGER 
+         FROM comments 
+         WHERE comments.article_id = articles.article_id) AS comment_count;
+      `,
       [article_id, votes]
     )
     .then((result) => {

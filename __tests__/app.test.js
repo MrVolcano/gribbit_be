@@ -410,6 +410,25 @@ describe("PATCH /api/articles/:article_id", () => {
         );
       });
   });
+  test("200: updated to include comment_count in article object", () => {
+    return supertest(app)
+      .patch("/api/articles/3")
+      .send({ inc_votes: 10 })
+      .expect(200)
+      .then((response) => {
+        const article = response.body;
+        expect(article.article_id).toBe(3);
+        expect(article.votes).toBe(10);
+        expect(article.topic).toBe("mitch");
+        expect(article.title).toBe("Eight pug gifs that remind me of mitch");
+        expect(article.author).toBe("icellusedkars");
+        expect(article.body).toBe("some gifs");
+        expect(article.comment_count).toBe(2);
+        expect(article.article_img_url).toBe(
+          "https://images.pexels.com/photos/158651/news-newsletter-newspaper-information-158651.jpeg?w=700&h=700"
+        );
+      });
+  });
   test("200: reduces vote count when passed a negative number", () => {
     return supertest(app)
       .patch("/api/articles/1")
