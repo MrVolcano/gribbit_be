@@ -1,10 +1,13 @@
 const db = require("../db/connection");
 
 function selectArticleByID(articleID) {
-  return db.query("SELECT * FROM articles WHERE article_id = $1;", [articleID]);
+  return db
+    .query("SELECT * FROM articles WHERE article_id = $1;", [articleID])
+    .then((result) => {
+      return result.rows[0];
+    });
 }
 
-// function selectAllArticles({ sort_by = "created_at", order = "DESC" } = {}) {
 function selectAllArticles(sort_by, order, topic) {
   if (sort_by === "" || sort_by === undefined || sort_by === null) {
     sort_by = "created_at";

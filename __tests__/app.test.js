@@ -33,9 +33,9 @@ describe("GET /api/topics", () => {
       .get("/api/topics")
       .expect(200)
       .then((response) => {
-        const result = response.body.topics;
-        expect(result.length).toBe(3);
-        result.forEach((topic) => {
+        const topics = response.body.topics;
+        expect(topics.length).toBe(3);
+        topics.forEach((topic) => {
           expect(topic).toHaveProperty("slug");
           expect(topic).toHaveProperty("description");
         });
@@ -49,7 +49,7 @@ describe("GET /api/articles:article_id", () => {
       .get("/api/articles/3")
       .expect(200)
       .then((response) => {
-        const article = response.body.article;
+        const article = response.body;
         expect(typeof article).toBe("object");
         expect(article.author).toBe("icellusedkars");
         expect(article.title).toBe("Eight pug gifs that remind me of mitch");
@@ -61,6 +61,16 @@ describe("GET /api/articles:article_id", () => {
         expect(article.article_img_url).toBe(
           "https://images.pexels.com/photos/158651/news-newsletter-newspaper-information-158651.jpeg?w=700&h=700"
         );
+      });
+  });
+  test("400: Responds with error when given invalid article_id", () => {
+    return supertest(app)
+      .get("/api/articles/invalid_article")
+      .expect(400)
+      .then((response) => {
+        const error = response.body;
+        expect(error.message).toBe("Bad request");
+        expect(error.status).toBe(400);
       });
   });
   test("404: Responds with error when no records are found", () => {
@@ -97,17 +107,21 @@ describe("GET /api/articles", () => {
           });
         });
     });
-    test("404: Responds with an error when no articles are found", async () => {
-      // because db is populated, must first, delete all articles to generate error
-      await db.query(`DELETE FROM articles`);
 
-      // Then, make the request
-      const response = await supertest(app).get("/api/articles").expect(404);
-
-      // Check the response
-      const error = response.body;
-      expect(error.message).toBe("Not found");
-      expect(error.status).toBe(404);
+    test("404: Responds with an error when no articles are found", () => {
+      // Delete all articles to generate the error
+      return db
+        .query(`DELETE FROM articles`)
+        .then(() => {
+          // Then, make the request
+          return supertest(app).get("/api/articles").expect(404);
+        })
+        .then((response) => {
+          // Check the response
+          const error = response.body;
+          expect(error.message).toBe("Not found");
+          expect(error.status).toBe(404);
+        });
     });
   });
 
@@ -284,6 +298,15 @@ describe("GET /api/articles/:article_id/comments", () => {
           expect(comment).toHaveProperty("author");
           expect(comment).toHaveProperty("body");
         });
+      });
+  });
+  test("200: Responds with an empty array when no comments for a valid article", () => {
+    return supertest(app)
+      .get("/api/articles/4/comments")
+      .expect(200)
+      .then((response) => {
+        const { comments } = response.body;
+        expect(comments.length).toBe(0);
       });
   });
   test("400: Responds with 'bad request' when passed an invalid articleID", () => {

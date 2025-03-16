@@ -14,8 +14,8 @@ function getApis(request, response) {
 }
 
 function getTopics(request, response) {
-  selectAllTopics().then(({ rows }) => {
-    response.status(200).send({ topics: rows });
+  selectAllTopics().then((topics) => {
+    response.status(200).send({ topics });
   });
 }
 
@@ -23,8 +23,8 @@ function getArticleByID(request, response, next) {
   const article_id = Number(request.params.article_id);
   checkArticleID(article_id)
     .then(() => {
-      selectArticleByID(article_id).then(({ rows }) => {
-        response.status(200).send({ article: rows[0] });
+      selectArticleByID(article_id).then((article) => {
+        response.status(200).send(article);
       });
     })
     .catch(next);

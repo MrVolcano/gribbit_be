@@ -23,23 +23,23 @@ const {
 app.use(express.json());
 
 // Task 1: GET /api
-// returns all other available endpoints
+// responds with all other available endpoints
 app.get("/api", getApis);
 
 // Task 2: GET /api/topics
-// returns all topics
+// responds with all topics
 app.get("/api/topics", getTopics);
 
 // Task 3: GET /api/articles/:id
-// returns an article object of given id
+// responds with an article object of given id
 app.get("/api/articles/:article_id", getArticleByID);
 
 // Task 4: GET /api/articles
-// returns an array of article objects
+// responds with an array of article objects
 app.get("/api/articles", getAllArticles);
 
 // Task 5: GET /api/articles/:article_id/comments
-// returns an array of comments for a given article
+// responds with an array of comments for a given article
 app.get("/api/articles/:article_id/comments", getCommentsByArticleID);
 
 // Task 6: POST /api/articles/:article_id/comments
