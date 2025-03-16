@@ -26,7 +26,7 @@ function checkRecordExists(value, column, table) {
       return result.rows.length > 0;
     })
     .catch((error) => {
-      console.error("recordExists error:", error);
+      // console.error("recordExists error:", error);
       throw error;
     });
 }

@@ -50,7 +50,6 @@ function handleDefaultErrors(error, request, response, next) {
   response
     .status(status)
     .send({ status: status, message: error.message, detail: error.detail });
-  console.log(error.message, error.detail);
 }
 
 module.exports = {

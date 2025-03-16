@@ -197,23 +197,74 @@ describe("GET /api/articles", () => {
         });
     });
   });
-  describe.only("Filter by topic", () => {
+  describe("Filter by topic", () => {
     test("200: filters articles by valid topic", () => {
       return supertest(app)
         .get("/api/articles?topic=cats")
         .expect(200)
         .then((response) => {
           const { articles } = response.body;
-          console.log(articles);
           expect(articles.length).toBe(1);
           articles.forEach((article) => {
             expect(article.topic).toBe("cats");
           });
         });
     });
-    test.todo("200: return all articles when topic is ommitted");
-    test.todo("200: return an empty array for non-existent topic");
-    test.todo("400: rejects empty topic with 'Bad request'");
+    test("200: return all articles when topic is ommitted", () => {
+      return supertest(app)
+        .get("/api/articles")
+        .expect(200)
+        .then((response) => {
+          const { articles } = response.body;
+          expect(articles.length).toBe(13);
+        });
+    });
+    test("200: filters articles by topic with sort_by and order", () => {
+      return supertest(app)
+        .get("/api/articles?topic=mitch&sort_by=author&order=asc")
+        .expect(200)
+        .then((response) => {
+          const { articles } = response.body;
+          expect(articles.length).toBe(12);
+          expect(articles).toBeSortedBy("author");
+          articles.forEach((article) => {
+            expect(article.topic).toBe("mitch");
+          });
+        });
+    });
+    test("200: filters articles by topic case-insensitive", () => {
+      return supertest(app)
+        .get("/api/articles?topic=MiTcH")
+        .expect(200)
+        .then((response) => {
+          const { articles } = response.body;
+          expect(articles.length).toBe(12);
+          articles.forEach((article) => {
+            expect(article.topic).toBe("mitch");
+          });
+        });
+    });
+
+    test("400: rejects empty topic with 'Bad request'", () => {
+      return supertest(app)
+        .get("/api/articles/?topic=")
+        .expect(400)
+        .then((response) => {
+          const error = response.body;
+          expect(error.message).toBe("Bad request");
+          expect(error.status).toBe(400);
+        });
+    });
+    test("404: Returns 'Not found' when searching for non-existent topic", () => {
+      return supertest(app)
+        .get("/api/articles/?topic=charlie")
+        .expect(404)
+        .then((response) => {
+          const error = response.body;
+          expect(error.message).toBe("Not found");
+          expect(error.status).toBe(404);
+        });
+    });
   });
 });
 

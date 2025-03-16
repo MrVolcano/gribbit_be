@@ -13,8 +13,6 @@ function selectAllArticles(sort_by, order, topic) {
     order = "DESC";
   }
 
-  console.log(sort_by, order, topic);
-
   // Whitelist valid columns to prevent SQL injection
   const validColumns = [
     "article_id",
@@ -77,7 +75,7 @@ function selectAllArticles(sort_by, order, topic) {
 
   const queryParams = [];
   if (topic) {
-    queryText += `  WHERE a.topic = $1`;
+    queryText += `  WHERE LOWER(a.topic) = LOWER($1)`;
     queryParams.push(topic);
   }
   queryText += `
@@ -86,7 +84,6 @@ function selectAllArticles(sort_by, order, topic) {
     ORDER BY 
       a.${sort_by} ${normalisedOrder};`;
 
-  console.log(queryText);
   return db.query(queryText, queryParams);
 }
 
