@@ -19,6 +19,10 @@ const {
   handleDeleteComment,
 } = require("./controllers/comments");
 
+// add cors to bypass CORS requirements
+const cors = require("cors");
+app.use(cors());
+
 // add body parsing middleware to handle JSON bodies
 app.use(express.json());
 
