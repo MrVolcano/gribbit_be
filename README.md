@@ -1,11 +1,15 @@
-# Northcoders News Backend
+# Gribbit Backend
 
 ![Node.js](https://img.shields.io/badge/Node.js-v20.0.0-green) ![Postgres](https://img.shields.io/badge/Postgres-15.0-blue) ![License](https://img.shields.io/badge/license-MIT-yellow)
 
-Welcome to the **Northcoders News Backend**, a RESTful API powering a news platform. Built with **Node.js** and **Express**, this project connects to a **PostgreSQL** database to serve articles, comments, and user data through a clean, efficient set of endpoints. Whether you’re here to explore the code or spin up your own instance, this README has you covered!
+Welcome to the **Gribbit Backend**, a RESTful API powering a Reddit inspired news platform. Built with **Node.js** and **Express**, this project connects to a **PostgreSQL** database to serve articles, comments, and user data through a clean, efficient set of endpoints. Whether you’re here to explore the code or spin up your own instance, this README has you covered!
 
 ## Live Demo
-Try the hosted version: [Northcoders News API](https://news-q339.onrender.com)
+Try the hosted version: [Gribbit News API](https://news-q339.onrender.com)
+You can access the frontend here: https://gribbit.netlify.app/
+
+## Frontend Repo
+https://github.com/MrVolcano/gribbit_fe
 
 ## Project Overview
 This backend delivers a fully-functional API for a news application, featuring:
